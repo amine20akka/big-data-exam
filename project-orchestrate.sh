@@ -6,7 +6,7 @@
 ########################################################################
 
 # Create casandra schema
-docker exec cassandra-iot cqlsh --username cassandra --password cassandra  -f data/schema.cql
+docker exec cassandra-iot cqlsh --username cassandra --password cassandra  -f /schema.cql
 
 # Create Kafka topic "iot-data-event"
 docker exec kafka-iot kafka-topics --create --topic iot-data-event --partitions 1 --replication-factor 1 --if-not-exists --zookeeper zookeeper:2181

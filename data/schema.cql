@@ -11,11 +11,11 @@ CREATE TABLE TrafficKeySpace.Poi_traffic_batch(vehicleid text , vehicletype text
 CREATE TABLE TrafficKeySpace.Total_Traffic_batch (routeId text ,  vehicleType text,  totalCount bigint, timeStamp timestamp,recordDate text,PRIMARY KEY (routeId,recordDate,vehicleType));
 CREATE TABLE TrafficKeySpace.Window_Traffic_batch (routeId text , vehicleType text,  totalCount bigint, timeStamp timestamp,recordDate text,PRIMARY KEY (routeId,recordDate,vehicleType));
 
-drop table TrafficKeySpace.Total_Traffic;
-drop table TrafficKeySpace.Window_Traffic;
-drop table TrafficKeySpace.Poi_Traffic;
-drop table TrafficKeySpace.Heat_Map;
-drop table TrafficKeySpace.Total_Traffic_batch;
-drop table TrafficKeySpace.Window_Traffic_batch;
-drop table TrafficKeySpace.Poi_traffic_batch;
-drop table TrafficKeySpace.Heat_Map_Batch;
+//drop table TrafficKeySpace.Total_Traffic;
+//drop table TrafficKeySpace.Window_Traffic;
+//drop table TrafficKeySpace.Poi_Traffic;
+//drop table TrafficKeySpace.Heat_Map;
+//drop table TrafficKeySpace.Total_Traffic_batch;
+//drop table TrafficKeySpace.Window_Traffic_batch;
+//drop table TrafficKeySpace.Poi_traffic_batch;
+//drop table TrafficKeySpace.Heat_Map_Batch;
