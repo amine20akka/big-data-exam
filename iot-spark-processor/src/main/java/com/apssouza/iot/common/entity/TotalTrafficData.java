@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 /**
  * Class to represent total_tarffic db table
  *
- *
  */
 public class TotalTrafficData implements Serializable{
 

@@ -3,11 +3,8 @@ package com.apssouza.iot.streaming;
 import com.apssouza.iot.batch.LatestOffSetReader;
 import com.apssouza.iot.common.ProcessorUtils;
 import com.apssouza.iot.common.dto.IoTData;
-import com.apssouza.iot.common.dto.POIData;
 import com.apssouza.iot.common.IoTDataDeserializer;
 import com.apssouza.iot.common.PropertyFileReader;
-import com.datastax.spark.connector.util.JavaApiHelper;
-
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
@@ -17,7 +14,6 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.log4j.Logger;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
-import org.apache.spark.broadcast.Broadcast;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.streaming.Durations;
 import org.apache.spark.streaming.api.java.JavaInputDStream;
@@ -36,12 +32,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import scala.reflect.ClassTag;
-
 /**
  * This class consumes Kafka IoT messages and creates stream for processing the IoT data.
  *
- * @author apssouza22
  */
 public class StreamingProcessor implements Serializable {
 
@@ -53,7 +46,6 @@ public class StreamingProcessor implements Serializable {
     }
 
     public static void main(String[] args) throws Exception {
-//        String file = "iot-spark-local.properties";
         String file = "iot-spark.properties";
         Properties prop = PropertyFileReader.readPropertyFile(file);
         StreamingProcessor streamingProcessor = new StreamingProcessor(prop);
@@ -85,22 +77,13 @@ public class StreamingProcessor implements Serializable {
 
         logger.info("Starting Stream Processing");
 
-        //broadcast variables. We will monitor vehicles on Route 37 which are of type Truck
-        //Basically we are sending the data to each worker nodes on a Spark cluster.
-        ClassTag<POIData> classTag = JavaApiHelper.getClassTag(POIData.class);
-        Broadcast<POIData> broadcastPOIValues = sparkSession
-                .sparkContext()
-                .broadcast(getPointOfInterest(), classTag);
-
         StreamProcessor streamProcessor = new StreamProcessor(kafkaStream);
         streamProcessor.transform()
                 .appendToHDFS(sparkSession, parqueFile)
-                .processPOIData(broadcastPOIValues)
                 .filterVehicle()
                 .cache()
                 .processTotalTrafficData()
-                .processWindowTrafficData()
-                .processHeatMap();
+                .processWindowTrafficData();
 
         commitOffset(kafkaStream);
 
@@ -116,15 +99,7 @@ public class StreamingProcessor implements Serializable {
             return new HashMap<>();
         }
     }
-
-    private POIData getPointOfInterest() {
-        POIData poiData = new POIData();
-        poiData.setLatitude(53.877495);
-        poiData.setLongitude(-6.50238);
-        poiData.setRadius(100);//100 km
-        return poiData;
-    }
-
+    
     /**
      * Commit the ack to kafka after process have completed
      * This is our fault-tolerance implementation

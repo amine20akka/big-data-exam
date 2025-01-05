@@ -19,8 +19,6 @@ public class Mapper {
                 columns[1].toString(),
                 columns[2].toString(),
                 columns[3].toString(),
-                columns[4].toString(),
-                columns[5].toString(),
                 new java.sql.Date(timestamp1.getTime()),
                 Double.valueOf(columns[6].toString()),
                 Double.valueOf(columns[7].toString())

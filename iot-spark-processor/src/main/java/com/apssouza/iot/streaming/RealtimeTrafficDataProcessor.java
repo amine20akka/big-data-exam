@@ -22,8 +22,6 @@ import scala.Tuple2;
 
 /**
  * Class to process IoT data stream and to produce traffic data details.
- *
- * @author abaghel
  */
 public class RealtimeTrafficDataProcessor {
 

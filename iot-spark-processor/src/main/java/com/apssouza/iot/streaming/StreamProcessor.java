@@ -1,14 +1,12 @@
 package com.apssouza.iot.streaming;
 
 import com.apssouza.iot.common.dto.IoTData;
-import com.apssouza.iot.common.dto.POIData;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.log4j.Logger;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.Optional;
 import org.apache.spark.api.java.function.Function2;
-import org.apache.spark.broadcast.Broadcast;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SaveMode;
@@ -22,7 +20,6 @@ import org.apache.spark.streaming.api.java.JavaPairDStream;
 import org.apache.spark.streaming.kafka010.HasOffsetRanges;
 import org.apache.spark.streaming.kafka010.OffsetRange;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -86,8 +83,7 @@ public class StreamProcessor implements Serializable {
                     }
                     Dataset<Row> dataFrame = sql.createDataFrame(rdd, IoTData.class);
                     Dataset<Row> dfStore = dataFrame.selectExpr(
-                            "fuelLevel", "latitude", "longitude",
-                            "routeId", "speed", "timestamp", "vehicleId", "vehicleType",
+                            "fuelLevel", "routeId", "speed", "timestamp", "vehicleId", "vehicleType",
                             "metaData.fromOffset as fromOffset",
                             "metaData.untilOffset as untilOffset",
                             "metaData.kafkaPartition as kafkaPartition",
@@ -104,11 +100,6 @@ public class StreamProcessor implements Serializable {
         return this;
     }
 
-    public StreamProcessor processPOIData(final Broadcast<POIData> broadcastPOIValues) {
-        PointOfInterestProcessor.processPOIData(transformedStream, broadcastPOIValues);
-        return this;
-    }
-
     public StreamProcessor processTotalTrafficData() {
         RealtimeTrafficDataProcessor.processTotalTrafficData(filteredStream);
         return this;
@@ -118,12 +109,6 @@ public class StreamProcessor implements Serializable {
         RealtimeTrafficDataProcessor.processWindowTrafficData(filteredStream);
         return this;
     }
-
-    public StreamProcessor processHeatMap() throws IOException {
-        RealTimeHeatMapProcessor.processHeatMap(filteredStream);
-        return this;
-    }
-
 
     public StreamProcessor filterVehicle() {
         //We need filtered stream for total and traffic data calculation

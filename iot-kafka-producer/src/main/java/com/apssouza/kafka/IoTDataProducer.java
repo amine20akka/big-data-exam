@@ -36,7 +36,7 @@ public class IoTDataProducer {
     /**
      * Method runs in while loop and generates random IoT data in JSON with below format.
      * <p>
-     * {"vehicleId":"52f08f03-cd14-411a-8aef-ba87c9a99997","vehicleType":"Public Transport","routeId":"route-43","latitude":",-85.583435","longitude":"38.892395","timestamp":1465471124373,"speed":80.0,"fuelLevel":28.0}
+     * {"vehicleId":"52f08f03-cd14-411a-8aef-ba87c9a99997","vehicleType":"Public Transport","routeId":"route-43","timestamp":1465471124373,"speed":80.0,"fuelLevel":28.0}
      *
      * @throws InterruptedException
      */
@@ -55,7 +55,7 @@ public class IoTDataProducer {
             for (IoTData event : events) {
                 producer.send(new KeyedMessage<>(topic, event));
             }
-            Thread.sleep(rand.nextInt(5000 - 2000) + 2000);//random delay of 2 to 5 seconds
+            Thread.sleep(rand.nextInt(5000 - 2000) + 2000);// random delay of 2 to 5 seconds
         }
     }
 
@@ -65,22 +65,17 @@ public class IoTDataProducer {
             final Random rand
     ) {
         List<IoTData> eventList = new ArrayList<>();
-        String vehicleId = UUID.randomUUID().toString();
-        String vehicleType = vehicleTypeList.get(rand.nextInt(5));
-        String routeId = routeList.get(rand.nextInt(3));
+        String vehicleId = UUID.randomUUID().toString(); // random vehicle id
+        String vehicleType = vehicleTypeList.get(rand.nextInt(5)); // random vehicle type
+        String routeId = routeList.get(rand.nextInt(3)); // random route
         Date timestamp = new Date();
         double speed = rand.nextInt(80) + 20;// random speed between 20 to 100
-        double fuelLevel = rand.nextInt(30) + 10;
-        float []coords = getCoordinates();
+        double fuelLevel = rand.nextInt(30) + 10;// random fuel level between 10 to 40
         for (int i = 0; i < 5; i++) {// Add 5 events for each vehicle (Moving)
-            coords[0] = coords[0] + (float)0.0001;
-            coords[1] = coords[1] + (float)0.0001;
             IoTData event = new IoTData(
                     vehicleId,
                     vehicleType,
                     routeId,
-                    String.format("%s", coords[0]),
-                    String.format("%s", coords[1]),
                     timestamp,
                     speed,
                     fuelLevel
@@ -88,20 +83,5 @@ public class IoTDataProducer {
             eventList.add(event);
         }
         return eventList;
-    }
-
-
-    /**
-     * Method to generate random latitude and longitude for routes
-     * @return
-     */
-    private float[] getCoordinates() {
-        Random rand = new Random();
-        int latPrefix = rand.nextInt(3) + 52;
-        int longPrefix = rand.nextInt(3) + 7;
-        float latitude = latPrefix + rand.nextFloat();
-        float longitude = longPrefix + rand.nextFloat();
-        longitude = longitude * -1;
-        return new float[]{latitude, longitude};
     }
 }

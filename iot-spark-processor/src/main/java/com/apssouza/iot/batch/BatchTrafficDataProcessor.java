@@ -1,21 +1,16 @@
 package com.apssouza.iot.batch;
 
 import com.apssouza.iot.common.dto.AggregateKey;
-import com.apssouza.iot.common.dto.POIData;
 import com.apssouza.iot.common.entity.WindowTrafficData;
 import com.apssouza.iot.common.IotDataTimestampComparator;
 import com.datastax.spark.connector.japi.CassandraJavaUtil;
-import com.apssouza.iot.common.entity.POITrafficData;
 import com.apssouza.iot.common.entity.TotalTrafficData;
-import com.apssouza.iot.common.GeoDistanceCalculator;
 import com.apssouza.iot.common.dto.IoTData;
 
 import org.apache.log4j.Logger;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.Function;
-import org.apache.spark.broadcast.Broadcast;
-
 import scala.Tuple2;
 
 import java.text.SimpleDateFormat;
@@ -28,7 +23,6 @@ import java.util.concurrent.TimeUnit;
 /**
  * Class to process IoT data stream and to produce traffic data details.
  *
- * @author abaghel
  */
 public class BatchTrafficDataProcessor {
     private static final Logger logger = Logger.getLogger(BatchTrafficDataProcessor.class);
@@ -142,60 +136,6 @@ public class BatchTrafficDataProcessor {
         );
     }
 
-    /**
-     * Method to get the vehicles which are in radius of POI and their distance from POI.
-     *
-     * @param nonFilteredIotDataStream original IoT data stream
-     * @param broadcastPOIValues       variable containing POI coordinates, route and vehicle types to monitor.
-     */
-    public static void processPOIData(JavaRDD<IoTData> nonFilteredIotDataStream, Broadcast<POIData> broadcastPOIValues) {
-        // Filter by routeId,vehicleType and in POI range
-        JavaRDD<IoTData> iotDataStreamFiltered = filterVehicleInPOIRange(nonFilteredIotDataStream, broadcastPOIValues);
-
-        // pair with poi
-        JavaPairRDD<IoTData, POIData> poiDStreamPair = iotDataStreamFiltered.mapToPair(
-                iot -> new Tuple2<>(iot, broadcastPOIValues.value())
-        );
-
-        // Transform to dstream of POITrafficData
-        JavaRDD<POITrafficData> trafficDStream = poiDStreamPair.map(BatchTrafficDataProcessor::transformToPoiTrafficData);
-        persistPOI(trafficDStream);
-    }
-
-    private static void persistPOI(JavaRDD<POITrafficData> trafficDStream) {
-        // Map Cassandra table column
-        Map<String, String> columnNameMappings = new HashMap<String, String>();
-        columnNameMappings.put("vehicleId", "vehicleid");
-        columnNameMappings.put("distance", "distance");
-        columnNameMappings.put("vehicleType", "vehicletype");
-        columnNameMappings.put("timeStamp", "timestamp");
-
-        // call CassandraStreamingJavaUtil function to save in DB
-        CassandraJavaUtil.javaFunctions(trafficDStream)
-                .writerBuilder(
-                        "traffickeyspace",
-                        "poi_traffic_batch",
-                        CassandraJavaUtil.mapToRow(POITrafficData.class, columnNameMappings)
-                )
-                //                .withConstantTTL(120)//keeping data for 2 minutes
-                .saveToCassandra();
-    }
-
-    private static JavaRDD<IoTData> filterVehicleInPOIRange(JavaRDD<IoTData> nonFilteredIotDataStream, Broadcast<POIData> broadcastPOIValues) {
-        return nonFilteredIotDataStream
-                .filter(iot -> (
-                        iot.getRouteId().equals(broadcastPOIValues.value().getRoute())
-                                && iot.getVehicleType().contains(broadcastPOIValues.value().getVehicle())
-                                && GeoDistanceCalculator.isInPOIRadius(
-                                Double.valueOf(iot.getLatitude()),
-                                Double.valueOf(iot.getLongitude()),
-                                broadcastPOIValues.value().getLatitude(),
-                                broadcastPOIValues.value().getLongitude(),
-                                broadcastPOIValues.value().getRadius()
-                        )
-                ));
-    }
-
     //Function to create TotalTrafficData object from IoT data
     private static final TotalTrafficData transformToTotalTrafficData(Tuple2<AggregateKey, Long> tuple) {
         logger.debug("Total Count : " + "key " + tuple._1().getRouteId() + "-" + tuple._1().getVehicleType() + " value " + tuple._2());
@@ -219,21 +159,5 @@ public class BatchTrafficDataProcessor {
         trafficData.setRecordDate(new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
         return trafficData;
     });
-
-    //Function to create POITrafficData object from IoT data
-    private static POITrafficData transformToPoiTrafficData(Tuple2<IoTData, POIData> tuple) {
-        POITrafficData poiTraffic = new POITrafficData();
-        poiTraffic.setVehicleId(tuple._1.getVehicleId());
-        poiTraffic.setVehicleType(tuple._1.getVehicleType());
-        poiTraffic.setTimeStamp(new Date());
-        double distance = GeoDistanceCalculator.getDistance(
-                Double.valueOf(tuple._1.getLatitude()).doubleValue(),
-                Double.valueOf(tuple._1.getLongitude()).doubleValue(),
-                tuple._2.getLatitude(), tuple._2.getLongitude()
-        );
-        logger.debug("Distance for " + tuple._1.getLatitude() + "," + tuple._1.getLongitude() + "," + tuple._2.getLatitude() + "," + tuple._2.getLongitude() + " = " + distance);
-        poiTraffic.setDistance(distance);
-        return poiTraffic;
-    }
 
 }
