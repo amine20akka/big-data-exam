@@ -10,8 +10,6 @@ import java.util.UUID;
 
 /**
  * DAO class for window_traffic 
- * 
- * @author abaghel
  *
  */
 @Repository

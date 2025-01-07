@@ -44,29 +44,29 @@ jQuery(document).ready(function() {
             var resp=jQuery.parseJSON(dataList);
 
             // Total traffic
-            var totalOutput='';
-            jQuery.each(resp.totalTraffic, function(i,vh) {
-                 totalOutput +="<tbody><tr><td>"+ vh.routeId+"</td><td>"+vh.vehicleType+"</td><td>"+vh.totalCount+"</td></tr></tbody>";
-            });
-            var t_tabl_start = "<table class='table table-bordered table-condensed table-hover innerTable'><thead><tr><th>Route</th><th>Vehicle</th><th>Count</th></tr></thead>";
-            var t_tabl_end = "</table>";
-            totalTrafficList.html(t_tabl_start+totalOutput+t_tabl_end);
+            // var totalOutput='';
+            // jQuery.each(resp.totalTraffic, function(i,vh) {
+            //      totalOutput +="<tbody><tr><td>"+ vh.routeId+"</td><td>"+vh.vehicleType+"</td><td>"+vh.totalCount+"</td></tr></tbody>";
+            // });
+            // var t_tabl_start = "<table class='table table-bordered table-condensed table-hover innerTable'><thead><tr><th>Route</th><th>Vehicle</th><th>Count</th></tr></thead>";
+            // var t_tabl_end = "</table>";
+            // totalTrafficList.html(t_tabl_start+totalOutput+t_tabl_end);
 
             // Window traffic
-            var windowOutput='';
-            jQuery.each(resp.windowTraffic, function(i,vh) {
-                 windowOutput +="<tbody><tr><td>"+ vh.routeId+"</td><td>"+vh.vehicleType+"</td><td>"+vh.totalCount+"</td></tr></tbody>";
-            });
-            var w_tabl_start = "<table class='table table-bordered table-condensed table-hover innerTable'><thead><tr><th>Route</th><th>Vehicle</th><th>Count</th></tr></thead>";
-            var w_tabl_end = "</table>";
-            windowTrafficList.html(w_tabl_start+windowOutput+w_tabl_end);
+            // var windowOutput='';
+            // jQuery.each(resp.windowTraffic, function(i,vh) {
+            //      windowOutput +="<tbody><tr><td>"+ vh.routeId+"</td><td>"+vh.vehicleType+"</td><td>"+vh.totalCount+"</td></tr></tbody>";
+            // });
+            // var w_tabl_start = "<table class='table table-bordered table-condensed table-hover innerTable'><thead><tr><th>Route</th><th>Vehicle</th><th>Count</th></tr></thead>";
+            // var w_tabl_end = "</table>";
+            // windowTrafficList.html(w_tabl_start+windowOutput+w_tabl_end);
 
             //draw total traffic chart
             drawBarChart(resp.totalTraffic,totalTrafficChartData);
             window.tChart.update();
 
             //draw route-37 traffic chart
-            drawDoughnutChart(resp.totalTraffic,route37TrafficChartData);
+            drawDoughnutChart(resp.windowTraffic,route37TrafficChartData);
             window.wChart.update();
 
         });

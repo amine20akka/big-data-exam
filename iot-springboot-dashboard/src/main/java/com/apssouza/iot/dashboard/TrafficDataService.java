@@ -48,6 +48,8 @@ public class TrafficDataService {
         response.setTotalTraffic(totalTrafficList);
         response.setWindowTraffic(windowTrafficList);
         logger.info("Sending to UI " + response);
+        logger.info("Total Traffic Data: " + totalTrafficList);
+        logger.info("Window Traffic Data: " + windowTrafficList);
         // Send to UI
         this.template.convertAndSend("/topic/trafficData", response);
     }

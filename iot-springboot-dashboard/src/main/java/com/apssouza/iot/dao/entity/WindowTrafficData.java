@@ -12,8 +12,6 @@ import java.util.Date;
 
 /**
  * Entity class for window_traffic db table
- * 
- * @author abaghel
  *
  */
 @Table("window_traffic")

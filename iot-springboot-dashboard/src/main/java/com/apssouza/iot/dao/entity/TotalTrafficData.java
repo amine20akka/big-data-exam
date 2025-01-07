@@ -11,8 +11,6 @@ import java.util.Date;
 
 /**
  * Entity class for total_traffic db table
- * 
- * @author abaghel
  *
  */
 @Table("total_traffic")

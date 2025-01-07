@@ -9,7 +9,6 @@ import com.apssouza.iot.dao.entity.WindowTrafficData;
 /**
  * Response object containing traffic details that will be sent to dashboard.
  *
- *
  */
 public class Response implements Serializable {
     private List<TotalTrafficData> totalTraffic;
