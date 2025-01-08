@@ -1,10 +1,5 @@
 #!/bin/sh
 
-########################################################################
-# title:          Build Complete Project
-# description:    Build complete Big data pipeline
-########################################################################
-
 # Create casandra schema
 docker exec cassandra-iot cqlsh --username cassandra --password cassandra  -f /schema.cql
 
