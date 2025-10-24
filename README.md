@@ -10,7 +10,6 @@ we also perform a batch processing and generating a batch view into Cassandra.
 We developed responsive web traffic monitoring dashboard using Spring Boot, 
 SockJs and Bootstrap which get the views from the Cassandra database and push to the UI using web socket.
 
-
 All component parts are dynamically managed using Docker, which means you don't need to worry 
 about setting up your local environment, the only thing you need is to have Docker installed.
 
