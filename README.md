@@ -45,7 +45,6 @@ Add `spark-master` to /etc/hosts pointing to localhost
 http://localhost:8080 Master
 http://localhost:8081 Slave
 
-
 #### Commands :
 * `hdfs dfs -mkdir /user`
 * `hdfs dfs -mkdir /user/lambda`
