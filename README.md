@@ -56,7 +56,6 @@ http://localhost:8081 Slave
 http://localhost:9870
 http://localhost:50075
 
-
 ### Kafka
 * kafka-topics --create --topic iot-data-event --partitions 1 --replication-factor 1 --if-not-exists --zookeeper zookeeper:2181
 * kafka-console-producer --request-required-acks 1 --broker-list kafka:9092 --topic iot-data-event
